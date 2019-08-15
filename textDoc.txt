@@ -1,0 +1,140 @@
+Sistemas de Informação - DCOMP/IFMA 
+Laboratório de Banco de Dados 
+Laboratório 05 – Camada de Acesso a Dados com JPA 
+Entregas: ​27-06-2019 - Etapa 01 
+                  ​06-08-2019 - Etapa 02 e 03 
+   
+Nosso estudo de caso é um sistema de automação de locação de veículos.                         
+Para isto, vamos supor que fazemos parte da fábrica de software                     
+DCOMP-Softhouse e recebemos a seguinte solicitação: ​desenvolvimento um               
+sistema para automatizar as funções de serviços administrativos e de clientes                     
+de uma empresa que trabalha com locação de carros, que chamaremos de XYZ                         
+Rental Car​. 
+A XYZ Rental Car permite aos seus clientes reservar carros a partir da Internet ou indo                               
+diretamente à sede da empresa. A empresa possui duas sedes, sendo uma a matriz e                             
+uma a filial. Dessa forma, a locação de um veículo pode ser feita em uma sede e a                                   
+devolução na outra sede, sem restrição. Além disso, algumas vezes carros são                       
+transferidos de uma localização para outra, ou seja, o ponto de locação de um carro                             
+pode ser alterado.  
+A XYZ Rental Car oferece várias classes de carros e vários preços de locação. Os                             
+carros são agrupados nas seguintes classes: Subcompacto, Compacto, Tamanho                 
+Médio, Tamanho Grande e Luxo. O preço de locação varia por classe do carro e tempo                               
+de locação. A empresa cobra algumas taxas quando o carro não é retornado ao seu                             
+local de origem. O valor depende de cada sede. 
+Algumas regras completam o sistema da XYZ Rental Car: 
+● Um cliente não pode realizar uma segunda reserva caso ainda possua uma                       
+locação aberta (cujo carro ainda não foi retornado). 
+● Apenas clientes com habilitação em dia podem realizar locações, ou seja, se as                         
+habilitações cadastradas pelo cliente estiverem com prazo vencido este não                   
+poderá realizar uma reserva. Neste caso é necessário atualizar seus dados                     
+antes de fazer a reserva. 
+● Um carro alugado ou que está no ponto que não é seu ponto de origem não                               
+pode ser retornado. Este deverá ser retornado pelo cliente ou deve ser                       
+transferido pela empresa ao seu ponto de origem. 
+A seguir apresentaremos o processo de modelagem do diagrama de classes que                       
+atenda às necessidades da XYZ Rental Car, começando pela modelagem conceitual do                       
+problema. 
+Principais Entidades 
+● Clientes: entidade que representa os clientes que já estão cadastrados no                     
+sistema, de forma que estão aptos a realizar reserva de um carro caso atendam                           
+às regras definidas pela empresa. 
+● Classes de Carro: entidade que representa as diferentes classes de carro que                       
+foram adotadas pela empresa para agrupar seus carros. 
+● Carros: entidade que representa os carros que estão disponíveis para locação                     
+pela empresa. 
+● Sedes: entidade que representa as diferentes sedes (atualmente são apenas                   
+duas) de locação que a empresa possui. 
+● Reservas: entidade que representa as reservas realizadas por clientes em um                     
+determinado momento.  
+Relacionamentos entre as entidades: 
+● Clientes - Reservas​: clientes realizam reservas na empresa. 
+● Sedes - Reservas​: cada reserva é realizada em uma sede, e isso influenciará no                           
+ponto onde o carro alugado deve ser retornado. 
+● Carros - Reservas​: cada reserva deve estar associada a um carro, selecionado                       
+pelo cliente no momento da locação. 
+● Classes de Carro - Carros​: cada carro deve estar associado a uma classe de                           
+carro adotada pela empresa. 
+● Sedes - Carros​: cada carro possui como ponto de origem uma das sedes da                           
+empresa. 
+A Figura 1 apresenta a representação gráfica do modelo conceitual, descrevendo suas                       
+classes e relacionamentos conforme já descrito anteriormente. 
+   
+Figura 1. Modelo Conceitual do Sistema da XYZ Rental Car 
+Modelagem Lógica 
+Para a modelagem lógica, iremos ainda utilizar um Diagrama de Classes da UML,                         
+porém contendo maiores informações sobre as e entidades e relacionamentos                   
+identificados, como seus atributos e associações. 
+A relação entre as classes Sedes e Reservas foi dividida em 2 papéis, explicitando duas                             
+operações distintas: a reserva de um carro em uma sede e a devolução de um carro em                                 
+uma sede, que pode ser ou não a mesma sede onde este foi locado. 
+ 
+Figura 2. Modelo Lógico do Sistema da XYZ Rental Car 
+A lista de atributos por classe e sua justificativa está apresentada na Tabela 1. 
+A multiplicidade dos relacionamentos também precisam ser explicadas, e faremos                   
+isso a seguir: 
+(Sedes-Reservas [locação])​: uma reserva só pode ser realizada em uma única sede                       
+(não existe reserva compartilhada entre sedes), porém uma sede pode ter nenhuma,                       
+uma ou várias reservas realizadas. 
+(Sedes-Reservas [devolução])​: de maneira análoga à anterior, uma reserva só pode ser                       
+finalizada (entrega do carro) em uma única sede, porém uma sede receber várias                         
+devoluções de carros, sem limites. 
+(Sedes-Carros [ponto de origem])​: um carro pode não estar localizado em uma sede                         
+(quando está alugado) ou estar localizado em apenas uma sede por vez, podendo esta                           
+sede ser diferente de seu ponto de origem. 
+(Sedes-Carros [ponto de origem])​: um carro pode não estar localizado em uma sede                         
+(quando está alugado) ou estar localizado em apenas uma sede por vez, podendo esta                           
+sede ser diferente de seu ponto de origem. 
+(Classes de Carro-Carros)​: um carro só pode estar agrupado em uma única classe de                           
+carros, que por sua vez pode possuir nenhum, um ou vários carros, sem limites. 
+(Carros-Reservas)​: uma reserva só pode estar associada a um carro, não existindo                       
+reservas com vários carros simultaneamente. No entanto, um carro pode possuir                     
+várias reservas ao longo do tempo, porém elas não podem ser realizadas em um                           
+mesmo intervalo de tempo (não é possível alugar um carro já alugado), conforme                         
+indicado nas regras do sistema. 
+(Clientes-Reservas)​: uma reserva só pode estar associada a um cliente, não existindo                       
+reservas com vários clientes associados a ela. No entanto, um cliente pode realizar                         
+várias reservas ao longo do tempo, porém elas não podem ser realizadas em um                           
+mesmo intervalo de tempo (um cliente só pode realizar uma nova reserva se a primeira                             
+estiver finalizada), conforme indicado nas regras do sistema. 
+  
+ 
+ 
+Tabela 1. Lista de Atributos compondo o Modelo Lógico do Sistema da XYZ                         
+Rental Car 
+TAREFAS 
+PARTE 1: D​efina as classes do modelo com os mapeamentos JPA.  
+Deverão serem criadas as classes do modelo que representam as entidades do            
+banco juntamente com os seus relacionamentos e os mapeamentos JPA de           
+acordo com a modelagem apresentado anteriormente. ​Poderá ser utilizado         
+qualquer banco de dados relacional.  
+  
+Parte 2: Implementação da Camada de Acesso a Dados  
+Implementar a camada de acesso a dados com os CRUDs  
+● Você deverá utilizar o padrão Repository, também deverá criar um 
+DAO Genérico para reutilizar os códigos semelhantes. 
+  
+Parte 3: Implementação de Testes de Integração com a Camada de Acesso a 
+Dados  
+Para este laboratório deverá ser criado um teste de integração com Junit para 
+cada nova funcionalidade, descrita a seguir.  
+1. Deve recuperar todos os carros da classe Compacto 
+2. Deve recuperar todos os carros da classe Luxo. 
+3. Deve realizar reserva para carro localizado em outra sede. 
+4. Um cliente não deve realizar uma segunda reserva caso ainda possua locação                       
+em aberto. 
+5. Deve efetuar reserva para um Cliente caso não tenha pendência (todas as suas                         
+reservas anteriores  já estejam finalizadas). 
+6. Deve atualizar dados da habilitação do cliente. 
+7. Não deve alugar um carro (num mesmo intervalo de tempo). 
+8. Deve efetuar reserva para clientes com habilitação dentro de prazo de validade. 
+9. Não deve efetuar reserva para clientes com habilitação vencida. 
+10. Deve recuperar todas as reservas em aberto de uma determinada sede. 
+11. Deve cobrar uma taxa para carro devolvido em outra sede. 
+12. Não deve cobrar taxa para carro devolvido na mesma sede. 
+13. Deve saber qual classe de carro teve menos reserva. 
+14. Deve recuperar todas as reservas finalizadas numa sede (sede de devolução)                     
+em um determinado período. 
+15. Deve recuperar todas as reservas em aberto de uma determinada sede. 
+ 
+   
+   
