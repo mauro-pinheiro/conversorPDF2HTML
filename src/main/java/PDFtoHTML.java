@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 public class PDFtoHTML {
     private static int index = 0;
+    private static String htmlName = "htmlDoc.html";
 
     public static void main(String[] args) {
         try{
@@ -35,12 +36,14 @@ public class PDFtoHTML {
             FileOutputStream fileOutputStream = new FileOutputStream("htmlDoc.html");
             OutputStreamWriter output  = new OutputStreamWriter(fileOutputStream);
 
-            PDFTextStripper stripper = new PDFText2HTML();
+            PDFTextStripper stripper = new PDFTextStripper();
             //((PDFTextStripper)stripper).writeText(document,output);
             String texto = stripper.getText(document);
 
             List<String> strings = extrairParagrafos(texto);
+            //strings = adicionaIndicies(strings);
             strings.forEach(System.out::println);
+            System.out.println("\n\n\n\n"+strings.size());
             //System.out.println(texto);
             document.close();
             output.close();
@@ -52,20 +55,41 @@ public class PDFtoHTML {
     }
 
     public static List<String> extrairParagrafos(String texto){
+        String lines[] = texto.split("\\r?\\n");
         List<String> paragrafos = new ArrayList<>();
-        Pattern pattern = Pattern.compile("<p>(.*)(\\s*)</p>");
-        Matcher matcher = pattern.matcher(texto);
-        while (matcher.find()){
-            paragrafos.add(matcher.group());
+        String aux = new String();
+        for(String line : lines){
+            int length = line.length();
+            aux += " " + line;
+            if(line.lastIndexOf('.') == length-1){
+                paragrafos.add(aux);
+                aux = new String();
+            }
         }
-        //paragrafos = Arrays.asList(texto.split("<p>.*</p>"));
         return paragrafos;
     }
 
     public static List<String> adicionaIndicies(List<String> paragrafos){
-
+        List<String> indexados = new ArrayList<>();
+        for(String paragrafo : paragrafos){
+            String tag = paragrafo.substring(0,2);
+            String resto = paragrafo.substring(2);
+            String strIndex = " id = \"P"+index+"\"";
+            index++;
+            indexados.add(tag+strIndex+resto);
+        }
+        return indexados;
     }
 
+    /*
+    public static String criaIndice(){
+        String indice = "<ul>";
+        for(int i = 0; i < index; i++){
+            indice += "<li><a href="+htmlName+"#P"+i+"</li>";
+        }
+        indice += "</ul>";
+    }
+    */
     /*
     @Override
     public void processOperator(Operator operator, List<COSBase> arguments) throws IOException {
