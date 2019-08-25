@@ -10,9 +10,9 @@ import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.tools.ExtractImages;
 import org.apache.pdfbox.tools.PDFText2HTML;
 import org.apache.pdfbox.util.Matrix;
+import org.w3c.dom.ls.LSOutput;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,25 +20,28 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class PDFtoHTML extends PDFText2HTML{
-    public PDFtoHTML() throws IOException {
-        addOperator(new Concatenate());
-        addOperator(new DrawObject());
-        addOperator(new SetGraphicsStateParameters());
-        addOperator(new Save());
-        addOperator(new Restore());
-        addOperator(new SetMatrix());
-    }
+public class PDFtoHTML {
+    private static int index = 0;
 
     public static void main(String[] args) {
         try{
             PDDocument document = PDDocument.load(new File("pdfDoc.pdf"));
             FileOutputStream fileOutputStream = new FileOutputStream("htmlDoc.html");
             OutputStreamWriter output  = new OutputStreamWriter(fileOutputStream);
-            PDFtoHTML stripper = new PDFtoHTML();
-            ((PDFTextStripper)stripper).writeText(document,output);
+
+            PDFTextStripper stripper = new PDFText2HTML();
+            //((PDFTextStripper)stripper).writeText(document,output);
+            String texto = stripper.getText(document);
+
+            List<String> strings = extrairParagrafos(texto);
+            strings.forEach(System.out::println);
+            //System.out.println(texto);
             document.close();
             output.close();
         } catch (InvalidPasswordException e) {
@@ -48,6 +51,22 @@ public class PDFtoHTML extends PDFText2HTML{
         }
     }
 
+    public static List<String> extrairParagrafos(String texto){
+        List<String> paragrafos = new ArrayList<>();
+        Pattern pattern = Pattern.compile("<p>(.*)(\\s*)</p>");
+        Matcher matcher = pattern.matcher(texto);
+        while (matcher.find()){
+            paragrafos.add(matcher.group());
+        }
+        //paragrafos = Arrays.asList(texto.split("<p>.*</p>"));
+        return paragrafos;
+    }
+
+    public static List<String> adicionaIndicies(List<String> paragrafos){
+
+    }
+
+    /*
     @Override
     public void processOperator(Operator operator, List<COSBase> arguments) throws IOException {
         String operation = operator.getName();
@@ -58,9 +77,11 @@ public class PDFtoHTML extends PDFText2HTML{
                 PDImageXObject imageXObject = (PDImageXObject) xobject;
                 BufferedImage bufferedImage = imageXObject.getImage();
                 Matrix ctmNew = getGraphicsState().getCurrentTransformationMatrix();
-                
+
                 int w = bufferedImage.getWidth();
                 int h = bufferedImage.getHeight();
+                float x = ctmNew.getTranslateX();
+                float y = ctmNew.getTranslateY();
 
                 ImageIO.write(bufferedImage, "JPEG", new File(objectName+".jpg"));
                 String htmlString = "<img src=\"" + objectName + ".jpg\"" +
@@ -74,10 +95,5 @@ public class PDFtoHTML extends PDFText2HTML{
         } else {
             super.processOperator(operator,arguments);
         }
-    }
-
-    @Override
-    protected void writeString(String chars) throws IOException {
-        output.write(chars);
-    }
+    }*/
 }
