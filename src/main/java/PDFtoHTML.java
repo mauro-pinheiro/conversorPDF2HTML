@@ -59,6 +59,40 @@
 
 
         public static String criaHTMLIndexado(String texto){
+            texto = identificaParagrafos(texto);
+            texto = numeraParagrafos(texto);
+            texto = criaIndice(texto);
+            return texto;
+        }
+
+        private static String criaIndice(String texto) {
+            //cria o indice
+            String indice = "\r\n<div><ul>";
+            for(int i = 0; i < index; i++){
+               indice += "<li><a href="+htmlName+"#P"+i+">" + "Paragrafo " + i +"</a></li>\r\n";
+            }
+            indice += "</ul></div>\r\n";
+
+            int indexOfBodyStart = texto.indexOf("<body>");
+            texto = texto.substring(0, indexOfBodyStart + 6) + indice + texto.substring(indexOfBodyStart+6);
+            return texto;
+        }
+
+        private static String numeraParagrafos(String texto) {
+            //Numera Paragrafos
+            for(int i = 0; i < texto.length(); i++){
+                if(texto.charAt(i) == 'P'){
+                    i++;
+                    if(texto.charAt(i) == '?'){
+                       texto = texto.substring(0,i) + index + texto.substring(i+1);
+                       index++;
+                    }
+                }
+            }
+            return texto;
+        }
+
+        private static String identificaParagrafos(String texto) {
             Pattern pattern = Pattern.compile("(<div>|(\\.(\\s*&#160;)*)\\s*</p>)\\s*<p>\\s*\\w");
             //Pattern listPattern = Pattern.compile("<p>&#9679;\\s*");
             //Pattern numberedListPattern = Pattern.compile("<p>\\d+\\.\\s*");
@@ -73,32 +107,8 @@
                 //System.out.println(aux2);
                 texto = texto.replace(aux1,aux2);
             }
-
-            //Numera Paragrafos
-            for(int i = 0; i < texto.length(); i++){
-                if(texto.charAt(i) == 'P'){
-                    i++;
-                    if(texto.charAt(i) == '?'){
-                       texto = texto.substring(0,i) + index + texto.substring(i+1);
-                       index++;
-                    }
-                }
-            }
-
-            //cria o indice
-            String indice = "\r\n<div><ul>";
-            for(int i = 0; i < index; i++){
-               indice += "<li><a href="+htmlName+"#P"+i+">" + "Paragrafo " + i +"</a></li>\r\n";
-            }
-            indice += "</ul></div>\r\n";
-
-            int indexOfBodyStart = texto.indexOf("<body>");
-            texto = texto.substring(0, indexOfBodyStart + 6) + indice + texto.substring(indexOfBodyStart+6);
-
-
             return texto;
         }
-
 
 
         @Override
